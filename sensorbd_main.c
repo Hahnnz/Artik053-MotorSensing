@@ -20,7 +20,7 @@
 #include <apps/shell/tash.h>
 #include <fcntl.h>
 #include <tinyara/gpio.h>
-
+int GPIO[10];
 static void show_usage(FAR const char *program)
 {
 	printf("USAGE:\n");
@@ -100,54 +100,72 @@ static void gpio_write(int port, int value)
 
 void ModuleInitializing_Horizontal(){
 	printf("Module Initializing..\n");
-	gpio_write(51, 1);
-	gpio_write(52, 1);
-	gpio_write(53, 1);
+	int GPIO_NUM = 37;
+	while(true){
+		if(GPIO_NUM==42) break;
+		gpio_write(GPIO_NUM, 1);
+		GPIO_NUM++;
+	}
+	GPIO_NUM=51;
+	while(true){
+		if(GPIO_NUM==54) break;
+		gpio_write(GPIO_NUM, 1);
+		GPIO_NUM++;
+	}
 	printf("Done\n");
 }
 
-void ModuleShifting_Horizontal(int ModuleNum,char Mode[])
+void ModuleShifting_Horizontal(int ModuleNum,char Mode[],int WorH)
 {
-	if(Mode == "On" || Mode == "Off"){
-		switch (ModuleNum) {
-		case 1:
-			printf("1 S");
-			if (Mode=="On")
-				gpio_write(51, 0);
-			else if (Mode == "Off")
-				gpio_write(51, 1);
-			break;
-		case 2:
-			printf("2 S");
-			if (Mode=="On")
-				gpio_write(52, 0);
-			else if (Mode == "Off")
-				gpio_write(52, 1);
-			break;
-		case 3:
-			printf("3 S");
-			if (Mode=="On")
-				gpio_write(53, 0);
-			else if (Mode == "Off")
-				gpio_write(53, 1);
-			break;
-		}
+	int GPIO_NUM;
+	if (WorH==0) GPIO_NUM = ModuleNum+36;
+	else if (WorH==1) GPIO_NUM = ModuleNum+50;
+
+	if(Mode == "On"){
+		gpio_write(GPIO_NUM, 1);
+	}
+	else if (Mode == "Off"){
+		gpio_write(GPIO_NUM, 0);
 	}
 	else if (Mode == "SuperOff"){
 		printf("Super Power Off\n");
-		gpio_write(51, 0);
-		gpio_write(52, 0);
-		gpio_write(53, 0);
+		while(true){
+			if(WorH=1 && GPIO_NUM==54) break;
+			if(WorH=0 && GPIO_NUM==42) break;
+			gpio_write(GPIO_NUM, 0);
+			GPIO_NUM++;
+		}
 	}
-	up_mdelay(500);
 }
 
 int main(int argc, FAR char *argv[]){
+	int i=0;
 	tash_cmd_install("sensorbd", sensorbd_main, TASH_EXECMD_SYNC);
+
 	ModuleInitializing_Horizontal();
 	up_mdelay(500);
-	ModuleShifting_Horizontal(1,"SuperOff");
+	ModuleShifting_Horizontal(1,"SuperOff",0);
+	up_mdelay(500);
+	while(true){
+		if(i==9) break;
+		else if(i<6){
+			ModuleShifting_Horizontal(i,"On",0);
+			up_mdelay(500);
+			i++;
+		}
+		else if(i>5){
+			int j=i-5;
+			ModuleShifting_Horizontal(j,"On",1);
+			up_mdelay(500);
+			i++;
+		}
+	}
+	ModuleShifting_Horizontal(0,"SuperOff",0);
 	up_mdelay(500);
 	ModuleInitializing_Horizontal();
+
 	return 0;
 }
+// Pin Info
+// Width : 1-1 / 2-4 / 3-2 / 4-3 / 5-5
+// height : 1-51 / 2-52 / 3-53

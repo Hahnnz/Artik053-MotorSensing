@@ -1,1 +1,0 @@
-# Artik053-MotorSensing
