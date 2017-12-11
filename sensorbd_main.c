@@ -103,7 +103,7 @@ void ModuleInitializing_Horizontal(){
 	int GPIO_NUM = 37;
 	while(true){
 		if(GPIO_NUM==42) break;
-		gpio_write(GPIO_NUM, 1);
+		gpio_write(GPIO_NUM, 128);
 		GPIO_NUM++;
 	}
 	GPIO_NUM=51;
@@ -115,25 +115,40 @@ void ModuleInitializing_Horizontal(){
 	printf("Done\n");
 }
 
-void ModuleShifting_Horizontal(int ModuleNum,char Mode[],int WorH)
+void ModuleShifting_Horizontal(int ModuleNum,char Mode[],char WorH[], char LorR[])
+//WorH : "width" "height" "none"
+//LorR : "left":54 "right":55 "Off" "All"
 {
-	int GPIO_NUM;
-	if (WorH==0) GPIO_NUM = ModuleNum+36;
-	else if (WorH==1) GPIO_NUM = ModuleNum+50;
+	int a=0;
+	int GPIO_NUM=0;
+	if (WorH=="width") GPIO_NUM = ModuleNum+36;
+	else if (WorH=="height") GPIO_NUM = ModuleNum+50;
 
 	if(Mode == "On"){
-		gpio_write(GPIO_NUM, 1);
+		gpio_write(GPIO_NUM, 128);
+		if (LorR=="left") gpio_write(54, 128);
+		else if (LorR=="right") gpio_write(55, 128);
 	}
 	else if (Mode == "Off"){
 		gpio_write(GPIO_NUM, 0);
+		if (LorR=="left") gpio_write(54, 0);
+		else if (LorR=="right") gpio_write(55, 0);
 	}
-	else if (Mode == "SuperOff"){
+	else if (Mode == "SuperOff" && WorH=="none" && LorR=="none"){
 		printf("Super Power Off\n");
+		gpio_write(54,0);	//Left
+		gpio_write(55,0);	//Right
 		while(true){
-			if(WorH=1 && GPIO_NUM==54) break;
-			if(WorH=0 && GPIO_NUM==42) break;
-			gpio_write(GPIO_NUM, 0);
-			GPIO_NUM++;
+			if(a==9) break;
+			else if(a<6){
+				gpio_write(GPIO_NUM+37+a, 0);
+				a++;
+			}
+			else if(a>5){
+				int b=a-5;
+				gpio_write(GPIO_NUM+50+b, 0);
+				a++;
+			}
 		}
 	}
 }
@@ -144,23 +159,35 @@ int main(int argc, FAR char *argv[]){
 
 	ModuleInitializing_Horizontal();
 	up_mdelay(500);
-	ModuleShifting_Horizontal(1,"SuperOff",0);
+	ModuleShifting_Horizontal(1,"SuperOff","none","none");
 	up_mdelay(500);
 	while(true){
 		if(i==9) break;
 		else if(i<6){
-			ModuleShifting_Horizontal(i,"On",0);
-			up_mdelay(500);
+			ModuleShifting_Horizontal(i,"On","width","left");
+			up_mdelay(250);
+			ModuleShifting_Horizontal(i,"Off","width","left");
+			up_mdelay(250);
+			ModuleShifting_Horizontal(i,"On","width","right");
+			up_mdelay(250);
+			ModuleShifting_Horizontal(i,"Off","width","right");
+			up_mdelay(250);
 			i++;
 		}
 		else if(i>5){
 			int j=i-5;
-			ModuleShifting_Horizontal(j,"On",1);
-			up_mdelay(500);
+			ModuleShifting_Horizontal(j,"On","height","left");
+			up_mdelay(250);
+			ModuleShifting_Horizontal(j,"Off","height","left");
+			up_mdelay(250);
+			ModuleShifting_Horizontal(j,"On","height","right");
+			up_mdelay(250);
+			ModuleShifting_Horizontal(j,"Off","height","right");
+			up_mdelay(250);
 			i++;
 		}
 	}
-	ModuleShifting_Horizontal(0,"SuperOff",0);
+	ModuleShifting_Horizontal(0,"SuperOff","none","none");
 	up_mdelay(500);
 	ModuleInitializing_Horizontal();
 
