@@ -5,14 +5,17 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../._main.c \
+../ModuleShifting-api.c \
 ../sensorbd_main.c 
 
 OBJS += \
 ./._main.o \
+./ModuleShifting-api.o \
 ./sensorbd_main.o 
 
 C_DEPS += \
 ./._main.d \
+./ModuleShifting-api.d \
 ./sensorbd_main.d 
 
 

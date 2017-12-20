@@ -32,20 +32,20 @@ endif
 all: pre-build main-build
 
 # Main-build Target
-main-build: 4.2.GPIO_WRITE
+main-build: Artik053-MotorSensing
 
 # Tool invocations
-4.2.GPIO_WRITE: $(OBJS) $(USER_OBJS)
+Artik053-MotorSensing: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARTIK GCC C Linker'
-	arm-none-eabi-ld  -T"/Users/macbook/install/ARTIK/SDK/A053/v1.2/common/scripts/flash.ld" -nostartfiles -nodefaultlibs -L"/Users/macbook/install/ARTIK/SDK/A053/v1.2/libsdk/typical/libs" -L"/Users/macbook/install/ARTIK/toolchains/gcc-arm-none-eabi/v4.9-2015q3/lib/gcc/arm-none-eabi/4.9.3" --entry=__start "/Users/macbook/install/ARTIK/SDK/A053/v1.2/libsdk/typical/libs/arm_vectortab.o" -o "4.2.GPIO_WRITE" --start-group $(OBJS) $(USER_OBJS) $(LIBS) --end-group
+	arm-none-eabi-ld  -T"/Users/macbook/install/ARTIK/SDK/A053/v1.2/common/scripts/flash.ld" -nostartfiles -nodefaultlibs -L"/Users/macbook/install/ARTIK/SDK/A053/v1.2/libsdk/typical/libs" -L"/Users/macbook/install/ARTIK/toolchains/gcc-arm-none-eabi/v4.9-2015q3/lib/gcc/arm-none-eabi/4.9.3" --entry=__start "/Users/macbook/install/ARTIK/SDK/A053/v1.2/libsdk/typical/libs/arm_vectortab.o" -o "Artik053-MotorSensing" --start-group $(OBJS) $(USER_OBJS) $(LIBS) --end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(ASM_DEPS)$(S_UPPER_DEPS)$(C_DEPS) 4.2.GPIO_WRITE
+	-$(RM) $(OBJS)$(ASM_DEPS)$(S_UPPER_DEPS)$(C_DEPS) Artik053-MotorSensing
 	-@echo ' '
 
 pre-build:
@@ -55,7 +55,7 @@ pre-build:
 
 post-build:
 	-@echo 'add header and add tailer'
-	-arm-none-eabi-objcopy -O binary ./"4.2.GPIO_WRITE" ./tinyara.bin;"/Users/macbook/install/ARTIK/SDK/A053/v1.2/common/tools/s5jchksum.py" tinyara.bin tinyara_head.bin;
+	-arm-none-eabi-objcopy -O binary ./"Artik053-MotorSensing" ./tinyara.bin;"/Users/macbook/install/ARTIK/SDK/A053/v1.2/common/tools/s5jchksum.py" tinyara.bin tinyara_head.bin;
 	-@echo ' '
 
 .PHONY: all clean dependents
